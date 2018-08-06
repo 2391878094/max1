@@ -1,0 +1,40 @@
+
+from sklearn import svm               # svm函数需要的
+import numpy as np                    # numpy科学计算库
+from sklearn import model_selection   
+import matplotlib.pyplot as plt       # 画图的库
+
+
+def iris_type(s):
+    it = {b'Iris-setosa': 0, b'Iris-versicolor': 1, b'Iris-virginica': 2}
+    return it[s]
+
+
+path ='D:\iris.data'  # 之前保存的文件路径
+data = np.loadtxt(path,                          # 路径
+                  dtype=float,                   # 数据类型
+                  delimiter=',',                 # 数据以什么分割符号分割数据
+                  converters={4: iris_type})     # 对某一列数据（第四列）进行某种类型的转换（）
+
+X, y = np.split(data, (4,), axis=1)
+x_train = X[:, 0:4]   #四个值都要比较********************
+y_train=y.reshape((-1))
+
+n=input()
+xlist=n.split(",")
+xlist = [float(xlist[i]) for i in range(len(xlist))] #for循环，把每个字符转成float值
+
+clf = svm.SVC(kernel='rbf',                      # 核函数
+               gamma=0.1,
+             decision_function_shape='ovo',     # one vs one 分类问题
+              C=0.8)
+clf.fit(x_train, y_train)    
+# 训练
+
+x_test=[[0,0,0,0],[0,0,0,0]]
+x_test[0]=xlist
+a=clf.predict(x_test)
+name=["Iris-setosa","Iris-versicolor","Iris-virginica"]
+b=int(a[0])
+print (name[b])
+print("准确率:",clf.score(x_train, y_train))               # 输出训练集的准确率 
