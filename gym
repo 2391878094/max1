@@ -21,8 +21,6 @@ print("State Space {}".format(env.observation_space))       #打印状态空间�
 """
 
 
-env.s = state
-env.render()   #展示环境
 
 
 #建立Q表
@@ -99,9 +97,18 @@ for _ in range(episodes):
             penalties += 1
 
         epochs += 1
-
+        
+        #如果想把每一步的图都画出来，把下面两句加入到代码中
+        """
+        env.s = state
+        env.render()
+        """
+        
+        
+        
     total_penalties += penalties
     total_epochs += epochs
+
 
 print(f"Results after {episodes} episodes:")
 print(f"Average timesteps per episode: {total_epochs / episodes}")     #平均每次的步数
