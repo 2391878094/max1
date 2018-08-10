@@ -1,93 +1,63 @@
 import tensorflow as tf
-
 import numpy as np
-
 import matplotlib.pyplot as plt
 
 
-
 #创建数据，并引入噪声
-
 x_data = np.linspace(-4,4,200)[:, np.newaxis]
-
-noise = np.random.normal(0.5,0.24, x_data.shape)
-
-y_data = np.square(x_data)+ noise-25+np.random.uniform(0,1)
-
+noise = np.random.normal(0,0.5, x_data.shape)
+y_data = np.square(x_data)+ noise-25
+for i in range(1):
+   for j in range(200):
+       y_data[j,i]=y_data[j,i]+np.random.uniform(0,1)
 
 
 #绘制此时的图像
-
 plt.plot(x_data, y_data)
 
 
 
 #创建TensorFlow的占位符，用于后面导入数据
-
 xs = tf.placeholder(tf.float32, [None, 1])
-
 ys = tf.placeholder(tf.float32, [None, 1])
 
                                                          
 
 #创建一个全连接层（隐藏层），激活函数为relu
-
-w1 = tf.Variable(tf.random_normal([1, 10])) #tf.random_normal()函数用于从服从指定正太分布的数值中取出指定个数的值
-
-b1 = tf.Variable(tf.zeros([1, 10]) + 0.1)  
-
+w1 = tf.Variable(tf.random_normal([1,4],mean=1,stddev=0.2)) #tf.random_normal()函数用于从服从指定正太分布的数值中取出指定个数的值
+b1 = tf.Variable(tf.constant(0.1,shape=[4],dtype=tf.float32)) 
 ip1 = tf.matmul(xs, w1) + b1
-
-out1 = tf.nn.relu(ip1)
-
+out1 = tf.nn.sigmoid(ip1)
 
 
 #输出层，不接激活函数
-
-w2 = tf.Variable(tf.random_normal([10,1]))
-
-b2 = tf.Variable(tf.zeros([1, 1]) + 0.1)
-
+w2 = tf.Variable(tf.random_normal([4,1],mean=1,stddev=0.2))
+b2 = tf.Variable(tf.constant(0.1,shape=[1],dtype=tf.float32))
 ip2 = tf.matmul(out1, w2) + b2
-
 out2 = ip2
 
 
-
 #loss为损失函数
-
-loss = tf.reduce_mean(tf.reduce_sum(tf.square(ys-out2), reduction_indices=[1]))#求平均值（平方差，一维）即求标准差
+loss =tf.reduce_mean(tf.square(out2-ys))#求平均值（平方差，一维）即求标准差
 
 
 
 #使用梯度下降法训练  使 loss 达到最小                                                         
-
-train_step = tf.train.GradientDescentOptimizer(0.01).minimize(loss)#学习率是0.01
+train_step = tf.train.GradientDescentOptimizer(0.05).minimize(loss)#学习率是0.01
 
 
 
 #初始化参数，创建会话
-
 init = tf.global_variables_initializer()
-
 sess = tf.Session()
-
 sess.run(init)# 上面定义的都没有运算，直到 sess.run 才会开始运算
 
 
 
 #开始训练
-
-for i in range(1000):
-
-    loss_value = sess.run([train_step, loss], feed_dict={xs:x_data, ys:y_data})
-
-    if i%50==0:
-
-        print(loss_value)
+for h in range(2500):
+     loss_value = sess.run([train_step, loss], feed_dict={xs:x_data, ys:y_data})
 
 #预测结果
-
 pred = sess.run(out2, feed_dict={xs:x_data})
-
 plt.plot(x_data, pred)
